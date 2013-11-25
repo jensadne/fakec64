@@ -30,18 +30,26 @@
 
 		</script>
 		<style type="text/css">
+		 @font-face
+		 {
+			 font-family: 'myFirstFont';
+			 src: url('Sansation_Light.ttf') format('truetype'),
+			 	 url('Sansation_Light.woff') format('woff'),
+				  url('Sansation_Light.eot') format('embedded-opentype'); /* IE9 */
+		 } 
+		 /*
 		@font-face { 
-			font-family: commodore64; 
-			src: url('C64_Elite_Mono_v1.0-STYLE.ttf');
-				/*url('../../static/fonts/C64_TrueType_v1.0-STYLE/fonts/C64_Elite_Mono_v1.0-STYLE.eot') */
-		}
+			font-family: "commodore"; 
+			src: url('./C64_Elite_Mono_v1.0-STYLE.ttf');
+				/*url('../../static/fonts/C64_TrueType_v1.0-STYLE/fonts/C64_Elite_Mono_v1.0-STYLE.eot')
+		} */
 		body { 
 			background-color: #000000; height: 100%; width: 100%; 
 			padding: 0; margin: 0; position: absolute; top: 0px; left: 0px;
 		}
 		textarea { 
 			background-color: #3E31A2; font-size: 24px; color: #7C70DA;
-			font-family: commodore64; border: 0; padding: 0; line-height: 24px; 
+			font-family: 'myFirstFont'; border: 0; padding: 0; line-height: 24px; 
 			margin: 0;
 		}
 		div#frame { 
