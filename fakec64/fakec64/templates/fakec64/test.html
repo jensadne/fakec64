@@ -1,75 +1,162 @@
 <!DOCTYPE html>
 <html>
     <head>
-	    <title></title>
+	    <title>**** COMMODORE 64 BASIC V2 ****</title>
+		<meta charset="UTF-8" />
+		
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 		<script>
-		(function ($, undefined) {
-    $.fn.getCursorPosition = function() {
-        var el = $(this).get(0);
-        var pos = 0;
-        if('selectionStart' in el) {
-            pos = el.selectionStart;
-        } else if('selection' in document) {
-            el.focus();
-            var Sel = document.selection.createRange();
-            var SelLength = document.selection.createRange().text.length;
-            Sel.moveStart('character', -el.value.length);
-            pos = Sel.text.length - SelLength;
-        }
-        return pos;
-    }
-})(jQuery);
-	
-		$(function(){
-			$('#c64console').keyup(function(event_){
-				// check if enter was pressed
+var base_url = '';
 
-			});
+// set up AJAX CSRF
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    crossDomain: false, // obviates need for sameOrigin test
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+(function ($, undefined) 
+{
+	$.fn.getCursorPosition = function() {
+	var el = $(this).get(0);
+	var pos = 0;
+	if('selectionStart' in el) {
+		pos = el.selectionStart;
+	} else if('selection' in document) {
+		el.focus();
+		var Sel = document.selection.createRange();
+		var SelLength = document.selection.createRange().text.length;
+		Sel.moveStart('character', -el.value.length);
+		pos = Sel.text.length - SelLength;
+	}
+	return pos;
+	}
+})(jQuery);
+
+function string_replace_at(str, index, replacement)
+{
+	return str.substr(0, index) + replacement + str.substr(index+replacement.length);
+}
+
+var cursor_state = 0;
+var prev_character = '';
+function blink_cursor()
+{
+	var screen_content = $('#c64console').html();
+	var cursor_position = $('#c64console').getCursorPosition();
+	;	
+	if (cursor_state == 0) {
+		cursor_state = 1;	
+		prev_character = screen_content[cursor_position];
+		screen_content = string_replace_at(screen_content, cursor_position, '\u0eea0');
+	} else {
+		cursor_state = 0;
+		screen_content = string_replace_at(screen_content, cursor_position, prev_character);
+		prev_character = ' ';
+	}
+	$('#c64console').html(screen_content);
+}
+
+$(function()
+{
+	$('#c64console').keyup(function(event_)
+	{
+		var screen_content = $('#c64console').val().toUpperCase();
+		$('#c64console').val(screen_content);
+
+		// check if enter was pressed
+		if (event_.keyCode != 13)
+			return;
+
+		var position = $('#c64console').getCursorPosition() - 2;
+
+		// this isn't quite correct since it depends on users not expecting
+		// proper C64 behaviour, but meh.
+		var start_of_line = screen_content.lastIndexOf('\n', position);
+		var line_length = position-start_of_line;
+		var current_line = screen_content.substr(start_of_line+1, line_length);
+		
+		// ask the server if current_line is a valid command
+		$.post(base_url + '/', {line: current_line}, function(retval){ 
+			alert(retval);	
+		}).fail(function(){
+			// invalid command, print syntax error line
 		});
+		;
+	});
+
+	 //setInterval(blink_cursor, 333);
+});
 
 		</script>
 		<style type="text/css">
-		 @font-face
-		 {
-			 font-family: 'myFirstFont';
-			 src: url('Sansation_Light.ttf') format('truetype'),
-			 	 url('Sansation_Light.woff') format('woff'),
-				  url('Sansation_Light.eot') format('embedded-opentype'); /* IE9 */
-		 } 
-		 /*
 		@font-face { 
-			font-family: "commodore"; 
-			src: url('./C64_Elite_Mono_v1.0-STYLE.ttf');
-				/*url('../../static/fonts/C64_TrueType_v1.0-STYLE/fonts/C64_Elite_Mono_v1.0-STYLE.eot')
-		} */
+			font-family: commodore64; 
+			src: url('{{ STATIC_URL }}C64_Pro_Mono_v1.0-STYLE.ttf');
+		}
 		body { 
 			background-color: #000000; height: 100%; width: 100%; 
 			padding: 0; margin: 0; position: absolute; top: 0px; left: 0px;
 		}
 		textarea { 
 			background-color: #3E31A2; font-size: 24px; color: #7C70DA;
-			font-family: 'myFirstFont'; border: 0; padding: 0; line-height: 24px; 
+			font-family: 'commodore64'; border: 0; padding: 0; line-height: 24px; 
 			margin: 0;
+			overflow: hidden; resize: none;
 		}
 		div#frame { 
-			margin-top: auto;
-			margin-bottom: auto; 
 			margin-left: auto;
 			margin-right: auto;
-			width: 1200px; height: 900px; background-color: #7C70DA; 
+			width: 1206px; height: 876px; background-color: #7C70DA; 
+			top: 80px;
 			position: relative;
 		}
 		div#screen { 
-			width: 960px; height: 768px; 
-			position: absolute; left: 120px; top: 50px; 
-			
+			width: 960px; height: 600px; 
+			position: absolute; left: 123px; top: 129px; 
 		}
+		div#wrapper {display:table;}
+		div#cell {display:table-cell; vertical-align:middle;}
+
 		</style>
 	</head>
 	<body>
 	<div id="frame">
-		<div id="screen"><textarea id="c64console" rows="25" cols="40"></textarea>
+		<div id="screen"><textarea id="c64console" rows="25" cols="40">
+
+    **** COMMODORE 64 BASIC V2 ****     
+
+ 64K RAM SYSTEM  38911 BASIC BYTES FREE 
+
+READY.
+
+</textarea>
 	</div>
-	</body>
+	</div>
+		</body>
 </html>
