@@ -9,7 +9,7 @@ memory = {}
 for cell in Memory.objects.all():
     memory[cell.address] = cell.value
 
-load_re = re.compile(r'^load( )?"((\$|[a-z0-9]+))"')
+load_re = re.compile(r'^load( )?"((\$|[a-z0-9]+))",8')
 peek_re = re.compile(r'^peek ([0-9]+)')
 
 
@@ -31,7 +31,7 @@ def validate_command(request):
         try:
             fil = disk.load_file(name=filename)
             request.session['file_loaded'] = fil.pk
-        except File.DoesNotExists:
+        except File.DoesNotExist:
             return HttpResponse('file not found'.upper())
 
     if cmd.startswith('list') and request.session.get('disk_loaded', False):
