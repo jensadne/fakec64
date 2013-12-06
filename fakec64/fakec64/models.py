@@ -7,7 +7,7 @@ class Disk(models.Model):
 
     def load_file(self, filename):
         if not filename in self.content:
-            return False
+            return None
         return self.files.get(name=filename)
 
 

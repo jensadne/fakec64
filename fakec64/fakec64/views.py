@@ -25,12 +25,14 @@ def validate_command(request):
     cmd = form.cleaned_data['command'].lower()
     if cmd.startswith('load'):
         filename = load_re.match(cmd).groups()[1]
+        print filename
         if filename == '$':
             request.session['disk_loaded'] = True
             return HttpResponse('')
         try:
-            fil = disk.load_file(name=filename)
+            fil = disk.load_file(filename=filename.upper())
             request.session['file_loaded'] = fil.pk
+            return HttpResponse('ready.'.upper())
         except File.DoesNotExist:
             return HttpResponse('file not found'.upper())
 

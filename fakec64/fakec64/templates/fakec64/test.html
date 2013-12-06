@@ -68,6 +68,8 @@ $(function()
 		var start_of_line = screen_content.lastIndexOf('\n', position);
 		var line_length = position-start_of_line;
 		var current_line = screen_content.substr(start_of_line+1, line_length);
+        if (!current_line)
+            return;
 		
 		// ask the server if current_line is a valid command
 		$.post(base_url + '/', {command: current_line}, function(retval){ 
