@@ -8,38 +8,6 @@
 		<script>
 var base_url = '';
 
-// set up AJAX CSRF
-// using jQuery
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-var csrftoken = getCookie('csrftoken');
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-$.ajaxSetup({
-    crossDomain: false, // obviates need for sameOrigin test
-    beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type)) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
-
 (function ($, undefined) 
 {
 	$.fn.getCursorPosition = function() {
@@ -102,10 +70,11 @@ $(function()
 		var current_line = screen_content.substr(start_of_line+1, line_length);
 		
 		// ask the server if current_line is a valid command
-		$.post(base_url + '/', {line: current_line}, function(retval){ 
-			alert(retval);	
+		$.post(base_url + '/', {command: current_line}, function(retval){ 
+			//alert(retval);	
+			$('#c64console').val(screen_content +"\n"+ retval);
 		}).fail(function(){
-			// invalid command, print syntax error line
+			$('#c64console').val(screen_content +"\n"+ 'SYNTAX ERROR');
 		});
 		;
 	});
